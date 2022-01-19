@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My variant</title>
+
+    <link href="https://fonts.googleapis.com/css?family=Faster+One" rel="stylesheet">
+  
+    <style>
+        body {
+        width: 800px;
+        margin: 0 auto;
+        }
+
+        h1 {
+        font-size: 4rem;
+        text-align: center;
+        }
+
+        header p {
+        font-size: 1.3rem;
+        text-align: center;
+        }
+
+        section article {
+        width: 33%;
+        float: left;
+        }
+
+        section p {
+        margin: 5px 0;
+        }
+
+        section ul {
+        margin-top: 0;
+        }
+
+        h2 {
+        font-size: 2.5rem;
+        }
+    </style>
+  </head>
+
+  <body>
+
+      <header>
+
+      </header>
+
+      <section>
+
+      </section>
+
+    <script>
+        const header = document.querySelector('header');
+        const section = document.querySelector('section');
+
+        var requestURL = 'https://absolutevirtue.github.io/oop_2021/';
+        var request = new XMLHttpRequest();
+        request.open('GET', requestURL);
+        request.responseType = 'json';
+        request.send();
+
+        request.onload = function() {
+            var variant = request.response;
+            populateHeader(variant);
+            showelements(variant);
+        }
+        
+        function populateHeader(jsonObj) {
+            var myH1 = document.createElement('h1');
+            myH1.textContent = jsonObj['method'];
+            header.appendChild(myH1);
+
+            var myPara = document.createElement('p');
+            myPara.textContent = 'Сontent encoding: ' + jsonObj['content_encoding'] + ' // Total count: ' + jsonObj['total_count'];
+            header.appendChild(myPara);
+        }
+
+        function showelements(jsonObj) {
+            var elements = jsonObj['data'];
+            var my_Variant = 430000;
+            var sum = 0;
+            var counter = 0;
+            var new_Arr = [];
+            var j = 0;
+            var max_elem = 0;
+
+            for (var i = 0; i < elements.length; i++) {
+                var myArticle = document.createElement('article');
+                var myH2 = document.createElement('h2');
+                var myPara1 = document.createElement('p');
+                var myPara2 = document.createElement('p');
+                var myPara3 = document.createElement('p');
+                var myList = document.createElement('ul');
+
+                myH2.textContent = elements[i].Code;
+                myPara1.textContent = 'Ocupation: ' + elements[i].Occupation;
+                myPara2.textContent = 'Count: ' + elements[i].Count;
+
+                var ind = Number(myH2.textContent) % my_Variant;
+
+                if(ind >= 0 && ind <= 9999){
+
+                    myArticle.appendChild(myH2);
+                    myArticle.appendChild(myPara1);
+                    myArticle.appendChild(myPara2);
+                    myArticle.appendChild(myPara3);
+                    myArticle.appendChild(myList);
+                    
+                    sum += elements[i].Count;
+                    counter++;
+
+                    new_Arr[j] = elements[i].Count;
+                    j++;
+
+                }
+
+                
+                section.appendChild(myArticle);
+            }
+            var average = sum/counter;
+
+            alert("Cреднее арифметическое:  "+average);
+            alert("первый квартиль: "+Quartile_25(new_Arr));
+            alert("второй квартиль: "+Quartile_50(new_Arr));
+            alert("третий квартиль: "+Quartile_75(new_Arr));
+            alert("Мода: "+findMode(new_Arr));
+            alert("Разброс(Стандартное отклонение): "+getStandardDeviation(new_Arr));
+            
+        }
+
+        function Median(data) {
+            return Quartile_50(data);
+        }
+
+        function Quartile_25(data) {
+            return Quartile(data, 0.25);
+        }
+
+        function Quartile_50(data) {
+            return Quartile(data, 0.5);
+        }
+
+        function Quartile_75(data) {
+            return Quartile(data, 0.75);
+        }
+
+        function findMode(data){
+            mapping = {};
+            mode = 0;
+            for(var i = 0; i < data.length; i++){
+                if(!mapping[data[i]]){
+                    mapping[data[i]] = 0; 
+                }
+                else{
+                    return "Doesnt exist";
+                }
+                mapping[data[i]] += 1;
+            }    
+            for(prop in mapping){
+                if(mapping[prop] > mode){
+                    mode = parseInt(prop);
+                }
+                else{
+                    return "Doesnt exist";
+                }
+            } 
+        }
+
+        function getStandardDeviation (array) {
+            const n = array.length
+            const mean = array.reduce((a, b) => a + b) / n
+            return Math.sqrt(array.map(x => Math.pow(x - mean, 2)).reduce((a, b) => a + b) / n)
+        }
+
+        function Quartile(data, q) {
+            data=Array_Sort_Numbers(data);
+            var pos = ((data.length) - 1) * q;
+            var base = Math.floor(pos);
+            var rest = pos - base;
+
+            if( (data[base+1]!==undefined) ) {
+                return data[base] + rest * (data[base+1] - data[base]);
+            } 
+            else{
+                return data[base];
+            }
+        }
+
+        function Array_Sort_Numbers(inputarray){
+            return inputarray.sort(function(a, b) {
+                return a - b;
+            });
+        }
+
+        function Array_Sum(t){
+            return t.reduce(function(a, b) { return a + b; }, 0); 
+        }
+
+        function Array_Average(data) {
+            return Array_Sum(data) / data.length;
+        }
+
+        function Array_Stdev(tab){
+            var i,j,total = 0, mean = 0, diffSqredArr = [];
+
+            for(i=0;i<tab.length;i+=1){
+                total+=tab[i];
+            }
+
+            mean = total/tab.length;
+
+            for(j=0;j<tab.length;j+=1){
+                diffSqredArr.push(Math.pow((tab[j]-mean),2));
+            }
+            return (Math.sqrt(diffSqredArr.reduce(function(firstEl, nextEl){
+                        return firstEl + nextEl;
+                    })/tab.length));  
+        }
+
+        
+    </script>
+  </body>
+</html>
